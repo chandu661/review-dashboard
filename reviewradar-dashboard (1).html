@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReviewRadar — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #F0F2F8;
+  --surface:   #FFFFFF;
+  --surface2:  #F5F6FA;
+  --border:    #E2E5EF;
+  --border2:   #D0D4E3;
+  --primary:   #4F6AF0;
+  --primary-l: #EEF1FE;
+  --green:     #16A872;
+  --green-l:   #E8F7F2;
+  --red:       #E85A6A;
+  --red-l:     #FDEEF0;
+  --amber:     #D97706;
+  --amber-l:   #FEF3E2;
+  --slate:     #64748B;
+  --text:      #1E2433;
+  --text2:     #4B5563;
+  --text3:     #94A3B8;
+}
+
+html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+.shell { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 228px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+.logo {
+  padding: 18px 20px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.logo-text { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.4px; }
+.logo-text em { font-style: normal; color: var(--primary); }
+
+.nav { flex: 1; padding: 10px 10px; overflow-y: auto; }
+.nav-section { margin-bottom: 4px; }
+.nav-heading { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase; padding: 10px 10px 5px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: 7px;
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  cursor: pointer; transition: all 0.13s; user-select: none;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--primary-l); color: var(--primary); font-weight: 600; }
+.nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--red); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+.nav-badge.blue { background: var(--primary); }
+
+.sidebar-footer { padding: 12px 10px; border-top: 1px solid var(--border); }
+.user-row { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.user-row:hover { background: var(--surface2); }
+.ava { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#4F6AF0,#8B5CF6); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; flex-shrink: 0; }
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-plan { font-size: 10px; color: var(--text3); }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 26px; height: 56px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.topbar-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+.select-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: 7px; outline: none; cursor: pointer;
+  font-family: inherit; transition: border-color 0.15s;
+}
+.select-pill:hover { border-color: var(--primary); }
+
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.13s; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #3D57D8; }
+.btn-outline { background: white; border: 1px solid var(--border2); color: var(--text2); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-green { background: var(--green); color: white; }
+.btn-green:hover { background: #128F60; }
+
+/* ── CONTENT AREA ── */
+.content { flex: 1; overflow-y: auto; padding: 20px 26px 28px; }
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── ALERT ── */
+.alert {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--red-l); border: 1px solid #F5C0C5;
+  border-radius: 9px; padding: 11px 14px; margin-bottom: 18px;
+}
+.alert-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: blink 2s infinite; flex-shrink: 0; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.35} }
+.alert-body { flex: 1; font-size: 12px; color: var(--text2); line-height: 1.5; }
+.alert-body strong { color: var(--red); font-weight: 700; }
+.alert-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.alert-dismiss { background: none; border: none; font-size: 18px; color: var(--text3); cursor: pointer; padding: 0 4px; line-height: 1; }
+
+/* ── STAT CARDS ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 18px; }
+.stat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 11px; padding: 16px 18px;
+  transition: box-shadow 0.2s;
+}
+.stat:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.stat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text3); }
+.stat-ico { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.stat-val { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.8px; line-height: 1; margin-bottom: 5px; }
+.stat-footer { display: flex; align-items: center; gap: 6px; }
+.chip { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.chip-green { background: var(--green-l); color: var(--green); }
+.chip-red   { background: var(--red-l);   color: var(--red); }
+.chip-amber { background: var(--amber-l); color: var(--amber); }
+.chip-blue  { background: var(--primary-l); color: var(--primary); }
+.stat-note { font-size: 11px; color: var(--text3); }
+
+/* ── GRID ── */
+.grid2 { display: grid; grid-template-columns: 1fr 310px; gap: 14px; margin-bottom: 14px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ── CARD ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 11px; overflow: hidden; }
+.card-head { padding: 14px 18px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.card-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.card-body { padding: 18px; }
+
+/* tabs */
+.tab-row { display: flex; gap: 2px; background: var(--surface2); padding: 3px; border-radius: 7px; }
+.tab { padding: 5px 11px; border-radius: 5px; font-size: 11px; font-weight: 600; color: var(--text3); cursor: pointer; transition: all 0.13s; }
+.tab.on { background: white; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+/* ── BAR CHART ── */
+.chart-wrap { position: relative; height: 150px; }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding: 0 2px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0; height: 100%; justify-content: flex-end; }
+.bar-stack { width: 100%; max-width: 32px; border-radius: 5px 5px 0 0; overflow: hidden; cursor: pointer; transition: opacity 0.15s; }
+.bar-stack:hover { opacity: 0.8; }
+.bar-seg { width: 100%; }
+.bar-lbl { font-size: 9px; color: var(--text3); font-weight: 600; margin-top: 6px; }
+.chart-axis { height: 1px; background: var(--border); margin: 0 2px; }
+.chart-leg { display: flex; gap: 14px; margin-top: 12px; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── DONUT ── */
+.donut-wrap { display: flex; flex-direction: column; align-items: center; padding: 16px 18px 14px; }
+.donut-ring { transform: rotate(-90deg); }
+.donut-center { text-anchor: middle; }
+.sent-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 100%; margin-top: 14px; }
+.sent-cell { text-align: center; padding: 10px 6px; background: var(--surface2); border-radius: 8px; }
+.sent-val { font-size: 17px; font-weight: 800; letter-spacing: -0.5px; }
+.sent-lbl { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* ── PLATFORM LIST ── */
+.pf-list { display: flex; flex-direction: column; gap: 12px; }
+.pf-row { display: flex; align-items: center; gap: 11px; }
+.pf-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.pf-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.pf-track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 5px; }
+.pf-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.pf-count { font-size: 13px; font-weight: 700; color: var(--text); min-width: 38px; text-align: right; }
+
+/* ── REVIEW FEED (FUNCTIONAL) ── */
+.feed { display: flex; flex-direction: column; gap: 0; }
+.feed-filters { display: flex; gap: 6px; padding: 12px 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.filter-btn { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text2); transition: all 0.13s; }
+.filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+.filter-btn.on { background: var(--primary); color: white; border-color: var(--primary); }
+.review-list { padding: 6px 10px; display: flex; flex-direction: column; gap: 0; max-height: 440px; overflow-y: auto; }
+.review-list::-webkit-scrollbar { width: 3px; }
+.review-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.rv {
+  padding: 12px 8px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.13s; border-radius: 6px;
+}
+.rv:last-child { border-bottom: none; }
+.rv:hover { background: var(--surface2); }
+.rv.selected { background: var(--primary-l); }
+.rv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.rv-left { display: flex; align-items: center; gap: 7px; }
+.pf-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.rv-source { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+.rv-stars { font-size: 11px; letter-spacing: -1px; }
+.rv-excerpt { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rv-meta { display: flex; align-items: center; justify-content: space-between; }
+.rv-time { font-size: 10px; color: var(--text3); }
+.rv-status { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.s-urgent  { background: var(--red-l);    color: var(--red); }
+.s-replied { background: var(--green-l);  color: var(--green); }
+.s-new     { background: var(--primary-l);color: var(--primary); }
+.s-neutral { background: var(--amber-l);  color: var(--amber); }
+
+/* ── REPLY PANEL ── */
+.reply-panel { border-left: 1px solid var(--border); width: 360px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--surface); overflow: hidden; }
+.rp-header { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); }
+.rp-title { font-size: 13px; font-weight: 700; }
+.rp-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.rp-body { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.rp-body::-webkit-scrollbar { width: 3px; }
+.rp-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.rp-review-text {
+  background: var(--surface2); border-radius: 9px; padding: 12px;
+  font-size: 12px; color: var(--text2); line-height: 1.6;
+  border-left: 3px solid var(--primary);
+}
+.rp-review-meta { font-size: 10px; color: var(--text3); margin-top: 6px; }
+.section-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.ai-suggestions { display: flex; flex-direction: column; gap: 7px; }
+.ai-chip {
+  padding: 10px 12px; border-radius: 8px; background: var(--surface2);
+  border: 1px solid var(--border); font-size: 12px; color: var(--text2);
+  cursor: pointer; line-height: 1.5; transition: all 0.13s;
+}
+.ai-chip:hover { border-color: var(--primary); background: var(--primary-l); color: var(--text); }
+.reply-box {
+  width: 100%; border: 1px solid var(--border2); border-radius: 8px;
+  padding: 10px 12px; font-size: 12px; font-family: inherit;
+  color: var(--text); background: white; resize: vertical; min-height: 90px;
+  outline: none; line-height: 1.6; transition: border-color 0.15s;
+}
+.reply-box:focus { border-color: var(--primary); }
+.reply-actions { display: flex; gap: 7px; }
+.rp-footer { padding: 12px 16px; border-top: 1px solid var(--border); }
+.ai-gen-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ai-gen-label { font-size: 11px; color: var(--text3); flex: 1; }
+.char-count { font-size: 11px; color: var(--text3); text-align: right; margin-top: 4px; }
+
+/* ── TOPICS ── */
+.topic-list { display: flex; flex-direction: column; gap: 10px; }
+.topic-row { display: flex; align-items: center; gap: 10px; }
+.topic-rank { font-size: 10px; font-weight: 700; color: var(--text3); width: 14px; text-align: right; flex-shrink: 0; }
+.topic-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.topic-track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.topic-fill { height: 100%; border-radius: 3px; }
+.topic-pct { font-size: 12px; font-weight: 700; min-width: 34px; text-align: right; }
+
+/* ── RESPONSE RATE ── */
+.resp-rows { display: flex; flex-direction: column; gap: 10px; }
+.resp-r { display: flex; align-items: center; gap: 9px; }
+.resp-name { font-size: 12px; color: var(--text2); font-weight: 500; width: 82px; flex-shrink: 0; }
+.resp-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.resp-fill { height: 100%; border-radius: 3px; }
+.resp-pct { font-size: 12px; font-weight: 700; min-width: 34px; text-align: right; color: var(--text); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: var(--text); color: white; padding: 10px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; z-index: 999;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── LAYOUT WITH REPLY ── */
+.reviews-section { display: flex; border: 1px solid var(--border); border-radius: 11px; overflow: hidden; background: var(--surface); margin-bottom: 14px; }
+.reviews-left { flex: 1; min-width: 0; }
+.no-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px 20px; text-align: center; }
+.no-select-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.4; }
+.no-select-text { font-size: 13px; color: var(--text3); }
+
+/* animations */
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+.stats-row > * { animation: fadeUp 0.35s ease both; }
+.stats-row > *:nth-child(1){animation-delay:.05s}
+.stats-row > *:nth-child(2){animation-delay:.10s}
+.stats-row > *:nth-child(3){animation-delay:.15s}
+.stats-row > *:nth-child(4){animation-delay:.20s}
+
+/* donut arc animation */
+.arc { stroke-dashoffset: 283; transition: stroke-dashoffset 1s ease 0.5s; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">📡</div>
+    <div class="logo-text">Review<em>Radar</em></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-heading">Overview</div>
+      <div class="nav-item active" onclick="setNav(this)"><span class="nav-icon">📊</span>Dashboard</div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">⭐</span>All Reviews <span class="nav-badge">47</span></div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">✦</span>AI Insights</div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">📈</span>Analytics</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-heading">Manage</div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">💬</span>Responses</div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">🔗</span>Platforms</div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">🔔</span>Alerts <span class="nav-badge">3</span></div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">🏷️</span>Tags & Topics</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-heading">Account</div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">⚙️</span>Settings</div>
+      <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">📄</span>Reports</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="ava">SP</div>
+      <div class="user-info">
+        <div class="user-name">Sneha Patel</div>
+        <div class="user-plan">Pro · 3 brands</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-sub">GlowCraft Beauty · Synced 2 min ago</div>
+    </div>
+    <div class="topbar-right">
+      <select class="select-pill" onchange="switchBrand(this)">
+        <option>GlowCraft Beauty</option>
+        <option>FitGear Pro</option>
+        <option>HomeNest Living</option>
+      </select>
+      <select class="select-pill" onchange="switchPeriod(this)">
+        <option>Last 30 days</option>
+        <option>Last 7 days</option>
+        <option>Last 90 days</option>
+      </select>
+      <button class="btn btn-outline" onclick="exportCSV()">⬇ Export</button>
+      <button class="btn btn-primary" onclick="genAIReport()">✦ AI Report</button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- ALERT -->
+    <div class="alert" id="alertBanner">
+      <div class="alert-pulse"></div>
+      <div class="alert-body"><strong>Urgent:</strong> 12 new 1-star reviews on Amazon in the past 6 hours — shipping delay is the top complaint. Click "Fix Now" to open a pre-drafted response.</div>
+      <div class="alert-actions">
+        <button class="btn btn-sm btn-primary" onclick="openUrgent()">Fix Now</button>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove()">✕</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-top">
+          <div class="stat-label">Total Reviews</div>
+          <div class="stat-ico" style="background:var(--primary-l)">💬</div>
+        </div>
+        <div class="stat-val">4,821</div>
+        <div class="stat-footer"><span class="chip chip-green">↑ 18%</span><span class="stat-note">vs last month</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-top">
+          <div class="stat-label">Avg. Rating</div>
+          <div class="stat-ico" style="background:#FEF9E5">⭐</div>
+        </div>
+        <div class="stat-val">4.2</div>
+        <div class="stat-footer"><span class="chip chip-green">↑ 0.3</span><span class="stat-note">across 5 platforms</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-top">
+          <div class="stat-label">Unresolved Negatives</div>
+          <div class="stat-ico" style="background:var(--red-l)">🚨</div>
+        </div>
+        <div class="stat-val">247</div>
+        <div class="stat-footer"><span class="chip chip-red">↑ 34%</span><span class="stat-note">needs action</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-top">
+          <div class="stat-label">Response Rate</div>
+          <div class="stat-ico" style="background:var(--green-l)">⚡</div>
+        </div>
+        <div class="stat-val">68%</div>
+        <div class="stat-footer"><span class="chip chip-amber">↑ 12%</span><span class="stat-note">target: 90%</span></div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Review Volume</div>
+            <div class="card-sub">Positive · Neutral · Negative by day</div>
+          </div>
+          <div class="tab-row">
+            <div class="tab on" onclick="setTab(this,'week')">Week</div>
+            <div class="tab" onclick="setTab(this,'month')">Month</div>
+            <div class="tab" onclick="setTab(this,'quarter')">Quarter</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="bars" id="barChart"></div>
+          <div class="chart-axis"></div>
+          <div class="chart-leg">
+            <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Positive</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div>Neutral</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>Negative</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Sentiment Breakdown</div>
+            <div class="card-sub">This month · 4,821 reviews</div>
+          </div>
+        </div>
+        <div class="donut-wrap">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="45" fill="none" stroke="#E2E5EF" stroke-width="22"/>
+            <circle class="arc" id="arcG" cx="80" cy="80" r="45" fill="none"
+              stroke="#16A872" stroke-width="22" stroke-linecap="butt"
+              stroke-dasharray="283" transform="rotate(-90 80 80)"/>
+            <circle class="arc" id="arcP" cx="80" cy="80" r="45" fill="none"
+              stroke="#4F6AF0" stroke-width="22" stroke-linecap="butt"
+              stroke-dasharray="283" transform="rotate(-90 80 80)" style="transition-delay:0.6s"/>
+            <text x="80" y="75" text-anchor="middle" fill="#1E2433" font-size="20" font-weight="800" font-family="Inter">62%</text>
+            <text x="80" y="92" text-anchor="middle" fill="#94A3B8" font-size="10" font-family="Inter">Positive</text>
+          </svg>
+          <div class="sent-grid">
+            <div class="sent-cell"><div class="sent-val" style="color:var(--green)">62%</div><div class="sent-lbl">😊 Positive</div></div>
+            <div class="sent-cell"><div class="sent-val" style="color:var(--primary)">23%</div><div class="sent-lbl">😐 Neutral</div></div>
+            <div class="sent-cell"><div class="sent-val" style="color:var(--red)">15%</div><div class="sent-lbl">😠 Negative</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS + REPLY PANEL -->
+    <div class="reviews-section">
+      <div class="reviews-left">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Live Review Feed</div>
+            <div class="card-sub">Click a review to reply</div>
+          </div>
+        </div>
+        <div class="feed-filters">
+          <button class="filter-btn on" onclick="filterReviews('all',this)">All (47)</button>
+          <button class="filter-btn" onclick="filterReviews('urgent',this)">🚨 Urgent (12)</button>
+          <button class="filter-btn" onclick="filterReviews('new',this)">New (19)</button>
+          <button class="filter-btn" onclick="filterReviews('replied',this)">Replied (16)</button>
+          <button class="filter-btn" onclick="filterReviews('1star',this)">1-2 ★</button>
+          <button class="filter-btn" onclick="filterReviews('5star',this)">4-5 ★</button>
+        </div>
+        <div class="review-list" id="reviewList"></div>
+      </div>
+
+      <!-- REPLY PANEL -->
+      <div class="reply-panel" id="replyPanel">
+        <div class="rp-header">
+          <div class="rp-title">Reply to Review</div>
+          <div class="rp-sub">Select a review from the list</div>
+        </div>
+        <div class="rp-body" id="rpBody">
+          <div class="no-select">
+            <div class="no-select-icon">💬</div>
+            <div class="no-select-text">Select a review on the left to read it and compose a reply</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="grid3">
+      <!-- Platforms -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Platform Breakdown</div>
+        </div>
+        <div class="card-body">
+          <div class="pf-list">
+            <div class="pf-row">
+              <div class="pf-icon" style="background:#FFF4E0">🛒</div>
+              <div style="flex:1;min-width:0">
+                <div class="pf-name">Amazon</div>
+                <div class="pf-track"><div class="pf-fill" style="width:78%;background:#FF9900"></div></div>
+              </div>
+              <div class="pf-count">1,847</div>
+            </div>
+            <div class="pf-row">
+              <div class="pf-icon" style="background:#EAF0FE">🔷</div>
+              <div style="flex:1;min-width:0">
+                <div class="pf-name">Google</div>
+                <div class="pf-track"><div class="pf-fill" style="width:56%;background:#4285F4"></div></div>
+              </div>
+              <div class="pf-count">1,204</div>
+            </div>
+            <div class="pf-row">
+              <div class="pf-icon" style="background:#FEF0F1">🛍️</div>
+              <div style="flex:1;min-width:0">
+                <div class="pf-name">Flipkart</div>
+                <div class="pf-track"><div class="pf-fill" style="width:42%;background:#E85A6A"></div></div>
+              </div>
+              <div class="pf-count">891</div>
+            </div>
+            <div class="pf-row">
+              <div class="pf-icon" style="background:#EEF1FE">💅</div>
+              <div style="flex:1;min-width:0">
+                <div class="pf-name">Nykaa</div>
+                <div class="pf-track"><div class="pf-fill" style="width:28%;background:#4F6AF0"></div></div>
+              </div>
+              <div class="pf-count">524</div>
+            </div>
+            <div class="pf-row">
+              <div class="pf-icon" style="background:#E8F7F2">📱</div>
+              <div style="flex:1;min-width:0">
+                <div class="pf-name">Meesho</div>
+                <div class="pf-track"><div class="pf-fill" style="width:16%;background:#16A872"></div></div>
+              </div>
+              <div class="pf-count">355</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Topics -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">✦ AI Topic Clusters</div>
+          <div style="font-size:11px;color:var(--text3)">What customers mention most</div>
+        </div>
+        <div class="card-body">
+          <div class="topic-list">
+            <div class="topic-row">
+              <div class="topic-rank">1</div>
+              <div style="flex:1;min-width:0">
+                <div class="topic-name">Shipping Delays 🚚</div>
+                <div class="topic-track"><div class="topic-fill" style="width:82%;background:var(--red)"></div></div>
+              </div>
+              <div class="topic-pct" style="color:var(--red)">82%</div>
+            </div>
+            <div class="topic-row">
+              <div class="topic-rank">2</div>
+              <div style="flex:1;min-width:0">
+                <div class="topic-name">Skin Results ✨</div>
+                <div class="topic-track"><div class="topic-fill" style="width:74%;background:var(--green)"></div></div>
+              </div>
+              <div class="topic-pct" style="color:var(--green)">74%</div>
+            </div>
+            <div class="topic-row">
+              <div class="topic-rank">3</div>
+              <div style="flex:1;min-width:0">
+                <div class="topic-name">Packaging Quality 📦</div>
+                <div class="topic-track"><div class="topic-fill" style="width:61%;background:var(--amber)"></div></div>
+              </div>
+              <div class="topic-pct" style="color:var(--amber)">61%</div>
+            </div>
+            <div class="topic-row">
+              <div class="topic-rank">4</div>
+              <div style="flex:1;min-width:0">
+                <div class="topic-name">Value for Money 💰</div>
+                <div class="topic-track"><div class="topic-fill" style="width:48%;background:var(--primary)"></div></div>
+              </div>
+              <div class="topic-pct" style="color:var(--primary)">48%</div>
+            </div>
+            <div class="topic-row">
+              <div class="topic-rank">5</div>
+              <div style="flex:1;min-width:0">
+                <div class="topic-name">Fragrance / Scent 🌸</div>
+                <div class="topic-track"><div class="topic-fill" style="width:35%;background:var(--primary)"></div></div>
+              </div>
+              <div class="topic-pct" style="color:var(--primary)">35%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Response Rate -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Response Rate by Platform</div>
+          <div style="font-size:11px;color:var(--text3)">Last 30 days</div>
+        </div>
+        <div class="card-body">
+          <div class="resp-rows">
+            <div class="resp-r">
+              <div class="resp-name">Amazon</div>
+              <div class="resp-track"><div class="resp-fill" style="width:72%;background:#FF9900"></div></div>
+              <div class="resp-pct">72%</div>
+            </div>
+            <div class="resp-r">
+              <div class="resp-name">Google</div>
+              <div class="resp-track"><div class="resp-fill" style="width:88%;background:#4285F4"></div></div>
+              <div class="resp-pct">88%</div>
+            </div>
+            <div class="resp-r">
+              <div class="resp-name">Flipkart</div>
+              <div class="resp-track"><div class="resp-fill" style="width:51%;background:var(--red)"></div></div>
+              <div class="resp-pct">51%</div>
+            </div>
+            <div class="resp-r">
+              <div class="resp-name">Nykaa</div>
+              <div class="resp-track"><div class="resp-fill" style="width:63%;background:var(--primary)"></div></div>
+              <div class="resp-pct">63%</div>
+            </div>
+            <div class="resp-r">
+              <div class="resp-name">Meesho</div>
+              <div class="resp-track"><div class="resp-fill" style="width:45%;background:var(--green)"></div></div>
+              <div class="resp-pct">45%</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:12px;color:var(--text2)">Overall avg</div>
+            <div style="font-size:20px;font-weight:800;color:var(--primary)">68%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const REVIEWS = [
+  { id:1, platform:'Amazon', color:'#FF9900', stars:1, author:'Riya M.', time:'2 hrs ago', status:'urgent',
+    text:'Package arrived 12 days late. I ordered this for my sister\'s birthday and it completely missed the date. Very disappointed with the shipping.',
+    aiSuggestions:[
+      'Hi Riya, we\'re so sorry about the delay — this is not the experience we want for you. We\'re looking into this with our logistics partner and will make it right. Please DM us your order ID.',
+      'Dear Riya, we apologise for the late delivery. As a gesture of goodwill, we\'d like to offer you a full refund plus a discount on your next order. Please reach out to support@glowcraft.in.',
+      'Hi Riya, thank you for your feedback. We take shipping delays very seriously and have flagged this internally. We would love to resolve this for you — could you share your order number?'
+    ]
+  },
+  { id:2, platform:'Google', color:'#4285F4', stars:5, author:'Priya K.', time:'5 hrs ago', status:'replied',
+    text:'Best serum I\'ve tried in 2 years. Genuinely transformed my skin in 3 weeks. The texture is perfect, not greasy at all. Will definitely repurchase.',
+    aiSuggestions:[
+      'Thank you so much, Priya! We\'re thrilled to hear the serum is working so well for you. Your kind words mean the world to our team 💛',
+      'Hi Priya, this made our day! So glad the serum is delivering visible results. We\'d love to see your before/after — tag us @GlowCraftBeauty!',
+    ]
+  },
+  { id:3, platform:'Nykaa', color:'#E85A6A', stars:3, author:'Anika S.', time:'8 hrs ago', status:'new',
+    text:'Good product, bad packaging. The moisturizer works well but the pump broke on day 3. Expected better quality for this price point.',
+    aiSuggestions:[
+      'Hi Anika, we\'re sorry to hear about the pump issue — this is a known concern we\'re actively fixing in our next batch. We\'d like to send you a replacement. Please email us at support@glowcraft.in.',
+      'Dear Anika, thank you for this honest feedback. Quality packaging is a priority for us, and we\'ve logged this issue with our production team. Please DM us for a quick resolution.',
+    ]
+  },
+  { id:4, platform:'Amazon', color:'#FF9900', stars:1, author:'Vikram T.', time:'10 hrs ago', status:'urgent',
+    text:'Received wrong product entirely. Ordered the Vitamin C serum but got a face wash. The packaging also looked tampered with. Demanding full refund immediately.',
+    aiSuggestions:[
+      'Hi Vikram, we sincerely apologise for this mix-up. This should never happen and we take it very seriously. Please message us your order ID and we\'ll arrange an immediate replacement + full refund.',
+    ]
+  },
+  { id:5, platform:'Flipkart', color:'#E85A6A', stars:4, author:'Meera R.', time:'1 day ago', status:'new',
+    text:'Really good face wash, nice lather and doesn\'t dry out my skin. Slight complaint: the fragrance is quite strong for a sensitive skin product. Otherwise great!',
+    aiSuggestions:[
+      'Hi Meera, thank you for the feedback! We\'ve noted the fragrance concern — we\'re working on a fragrance-free variant for sensitive skin. Watch this space!',
+      'Dear Meera, so glad you\'re enjoying it overall! Your note on fragrance is really helpful — we\'ll pass this on to our R&D team. Thanks for taking the time.',
+    ]
+  },
+  { id:6, platform:'Google', color:'#4285F4', stars:5, author:'Aarti D.', time:'1 day ago', status:'replied',
+    text:'Absolutely love the night repair cream. My skin looks visibly brighter and the fine lines around my eyes have reduced. Worth every rupee.',
+    aiSuggestions:[
+      'Thank you Aarti, this is exactly what we work for! So happy the night cream is showing results. If you\'d like to share a review photo, we\'d love to feature you!',
+    ]
+  },
+];
+
+let currentFilter = 'all';
+let selectedId = null;
+let typingTimer;
+
+// ── RENDER REVIEWS ──
+function renderReviews() {
+  const list = document.getElementById('reviewList');
+  const filtered = REVIEWS.filter(r => {
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'urgent') return r.status === 'urgent';
+    if (currentFilter === 'new') return r.status === 'new';
+    if (currentFilter === 'replied') return r.status === 'replied';
+    if (currentFilter === '1star') return r.stars <= 2;
+    if (currentFilter === '5star') return r.stars >= 4;
+    return true;
+  });
+  list.innerHTML = '';
+  filtered.forEach(r => {
+    const stars = '★'.repeat(r.stars) + '☆'.repeat(5-r.stars);
+    const statusClass = { urgent:'s-urgent', replied:'s-replied', new:'s-new', neutral:'s-neutral' }[r.status] || 's-new';
+    const statusLabel = { urgent:'Urgent', replied:'Replied', new:'New', neutral:'Pending' }[r.status] || 'New';
+    const div = document.createElement('div');
+    div.className = 'rv' + (selectedId === r.id ? ' selected' : '');
+    div.innerHTML = `
+      <div class="rv-top">
+        <div class="rv-left">
+          <div class="pf-dot" style="background:${r.color}"></div>
+          <div class="rv-source">${r.platform}</div>
+        </div>
+        <div class="rv-stars" style="color:${r.stars<=2?'var(--red)':r.stars===3?'var(--amber)':'#F59E0B'}">${stars}</div>
+      </div>
+      <div class="rv-excerpt">${r.text}</div>
+      <div class="rv-meta">
+        <div class="rv-time">${r.time} · ${r.author}</div>
+        <div class="rv-status ${statusClass}">${statusLabel}</div>
+      </div>`;
+    div.onclick = () => selectReview(r.id);
+    list.appendChild(div);
+  });
+}
+
+// ── SELECT REVIEW ──
+function selectReview(id) {
+  selectedId = id;
+  renderReviews();
+  const r = REVIEWS.find(x => x.id === id);
+  const panel = document.getElementById('rpBody');
+  const stars = '★'.repeat(r.stars) + '☆'.repeat(5-r.stars);
+  panel.innerHTML = `
+    <div>
+      <div class="section-label">Review</div>
+      <div class="rp-review-text">"${r.text}"</div>
+      <div class="rp-review-meta">${stars} · ${r.author} · ${r.platform} · ${r.time}</div>
+    </div>
+    <div>
+      <div class="section-label">✦ AI-Suggested Replies</div>
+      <div class="ai-suggestions" id="aiSugg"></div>
+    </div>
+    <div>
+      <div class="section-label">Your Reply</div>
+      <textarea class="reply-box" id="replyBox" placeholder="Type your response here, or click a suggestion above to use it..." oninput="updateCount(this)">${r.status==='replied'?'Thank you for your wonderful feedback! We\'re so glad you\'re happy with your experience. 😊':''}</textarea>
+      <div class="char-count" id="charCount">${r.status==='replied'?79:0} / 500 characters</div>
+    </div>`;
+  
+  // populate suggestions
+  const sugg = document.getElementById('aiSugg');
+  r.aiSuggestions.forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'ai-chip';
+    chip.textContent = s;
+    chip.onclick = () => {
+      document.getElementById('replyBox').value = s;
+      updateCount(document.getElementById('replyBox'));
+    };
+    sugg.appendChild(chip);
+  });
+  
+  document.getElementById('rpBody').insertAdjacentHTML('beforeend',`
+    <div class="reply-actions">
+      <button class="btn btn-primary" style="flex:1" onclick="sendReply(${id})">Send Reply</button>
+      <button class="btn btn-outline" onclick="clearReply()">Clear</button>
+    </div>`);
+  
+  document.querySelector('.rp-sub').textContent = `${r.platform} · ${r.author}`;
+}
+
+function updateCount(el) {
+  const n = el.value.length;
+  document.getElementById('charCount').textContent = n + ' / 500 characters';
+  if (n > 480) document.getElementById('charCount').style.color = 'var(--red)';
+  else document.getElementById('charCount').style.color = 'var(--text3)';
+}
+
+function clearReply() {
+  const box = document.getElementById('replyBox');
+  if (box) { box.value = ''; updateCount(box); }
+}
+
+function sendReply(id) {
+  const box = document.getElementById('replyBox');
+  if (!box || !box.value.trim()) { showToast('Please write a reply first'); return; }
+  const r = REVIEWS.find(x => x.id === id);
+  r.status = 'replied';
+  showToast('✓ Reply sent to ' + r.platform);
+  selectedId = null;
+  renderReviews();
+  document.getElementById('rpBody').innerHTML = '<div class="no-select"><div class="no-select-icon">✓</div><div class="no-select-text">Reply sent! Select another review to continue.</div></div>';
+  document.querySelector('.rp-sub').textContent = 'Select a review from the list';
+}
+
+// ── FILTERS ──
+function filterReviews(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  selectedId = null;
+  renderReviews();
+  document.getElementById('rpBody').innerHTML = '<div class="no-select"><div class="no-select-icon">💬</div><div class="no-select-text">Select a review to compose a reply</div></div>';
+}
+
+// ── OPEN URGENT from alert ──
+function openUrgent() {
+  document.getElementById('alertBanner').remove();
+  filterReviews('urgent', document.querySelector('.filter-btn:nth-child(2)'));
+  selectReview(1);
+}
+
+// ── NAV ──
+function setNav(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── TABS ──
+function setTab(el, period) {
+  el.closest('.tab-row').querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  renderBars(period);
+}
+
+// ── BRAND / PERIOD ──
+function switchBrand(sel) { showToast('Switched to ' + sel.value); }
+function switchPeriod(sel) { showToast('Showing data for: ' + sel.value); }
+
+// ── EXPORT ──
+function exportCSV() {
+  const rows = [['Platform','Author','Stars','Status','Text']];
+  REVIEWS.forEach(r => rows.push([r.platform, r.author, r.stars, r.status, '"'+r.text.replace(/"/g,'""')+'"']));
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'reviews-export.csv';
+  a.click();
+  showToast('✓ CSV exported');
+}
+
+// ── AI REPORT ──
+function genAIReport() {
+  showToast('✦ Generating AI report…');
+  setTimeout(() => showToast('✓ Report ready — check your email'), 2200);
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── BAR CHART ──
+const barData = {
+  week: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    data: [[80,30,20],[95,40,35],[110,25,18],[88,50,42],[140,35,55],[162,42,38],[108,28,22]]
+  },
+  month: {
+    labels: ['W1','W2','W3','W4'],
+    data: [[420,150,110],[510,180,160],[480,130,90],[550,200,190]]
+  },
+  quarter: {
+    labels: ['Jan','Feb','Mar'],
+    data: [[1800,600,420],[2100,700,550],[2400,800,480]]
+  }
+};
+
+function renderBars(period) {
+  const chart = document.getElementById('barChart');
+  chart.innerHTML = '';
+  const { labels, data } = barData[period] || barData.week;
+  const maxTotal = Math.max(...data.map(d => d[0]+d[1]+d[2]));
+  const colors = ['#16A872','#4F6AF0','#E85A6A'];
+  labels.forEach((day, i) => {
+    const total = data[i].reduce((a,b)=>a+b,0);
+    const colH = (total / maxTotal) * 110;
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const stack = document.createElement('div');
+    stack.className = 'bar-stack';
+    stack.style.height = colH + 'px';
+    stack.title = `Positive:${data[i][0]} Neutral:${data[i][1]} Negative:${data[i][2]}`;
+    data[i].forEach((val, j) => {
+      const seg = document.createElement('div');
+      seg.className = 'bar-seg';
+      seg.style.flex = val;
+      seg.style.background = colors[j];
+      stack.appendChild(seg);
+    });
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-lbl';
+    lbl.textContent = day;
+    col.appendChild(stack);
+    col.appendChild(lbl);
+    chart.appendChild(col);
+  });
+}
+
+// ── DONUT ──
+function animateDonut() {
+  const circ = 283;
+  // green: 62%
+  setTimeout(() => {
+    document.getElementById('arcG').style.strokeDashoffset = circ - (0.62 * circ);
+  }, 400);
+  // blue overlay for neutral starting after green
+  setTimeout(() => {
+    const arcP = document.getElementById('arcP');
+    arcP.style.strokeDashoffset = circ - (0.23 * circ);
+    arcP.style.strokeDasharray = circ;
+    // offset start angle so it starts after the green arc
+    arcP.setAttribute('transform', `rotate(${-90 + 0.62*360} 80 80)`);
+  }, 700);
+}
+
+// ── INIT ──
+renderBars('week');
+renderReviews();
+animateDonut();
+</script>
+</body>
+</html>
